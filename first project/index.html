@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <form id="search-form">
+    <label for="search-query">Wprowadź tematykę muzyki:</label>
+    <input type="text" id="search-query" placeholder="Muzyka Wojenna">
+    <button type="submit">Szukaj</button>
+  </form>
+
+  
+  <div id="youtube-player"></div>
+
+
+    <script>
+    const apiKey = 'AIzaSyD_Q9lVTjSj8hVs3eWrl-1EbojNoU4hRW8'; 
+    let player;
+
+    function onYouTubeIframeAPIReady() {
+      
+      function searchMusicVideos(query) {
+        const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&q=${query}&type=video&maxResults=10`;
+        
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            const videoIds = data.items.map(item => item.id.videoId);
+            playRandomVideo(videoIds);
+          })
+          .catch(error => {
+            console.error('Błąd pobierania wideo: ', error);
+          });
+      }
+
+      function playRandomVideo(videoIds) {
+        const randomIndex = Math.floor(Math.random() * videoIds.length);
+        const selectedVideoId = videoIds[randomIndex];
+
+        if (player) {
+          player.loadVideoById(selectedVideoId);
+        } else {
+          player = new YT.Player('youtube-player', {
+            height: '360',
+            width: '640',
+            videoId: selectedVideoId,
+            playerVars: {
+              'autoplay': 1,
+              'controls': 1
+            },
+            events: {
+              'onReady': onPlayerReady,
+            }
+          });
+        }
+      }
+
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // Obsługa formularza
+      const searchForm = document.getElementById('search-form');
+      searchForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const searchQueryInput = document.getElementById('search-query');
+        const searchQuery = searchQueryInput.value;
+        searchMusicVideos(searchQuery);
+      });
+
+      
+      searchMusicVideos('Muzyka Wojenna');
+    }
+  </script>
+  
+  
+</body>
+</html>
